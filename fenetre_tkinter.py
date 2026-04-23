@@ -6,16 +6,19 @@ import traitements
 import tkinter as tk
 from tkinter import PhotoImage, Label, filedialog
 import numpy as np
-from tkinter import filedialog
 from PIL import Image, ImageTk 
 
-global matrice_pixel, image, pil_image
+global pil_image, canvas
+
+canvas = False
 
 
 def afficher_image():
-    global pil_image, image, canvas, imageP
+    global pil_image, canvas, imageP
+    if canvas != False :
+        canvas.destroy()
+    
     # Placer canvas orange comme détour de l'image
-    pil_image = Image.open(image)
     info_image = (pil_image.format, pil_image.size, pil_image.mode)
     canvas = tk.Canvas(root, width=info_image[1][0]+20, height=info_image[1][1]+20, bg="orange")
     canvas.place(x = 50, y = 90, anchor="nw")
@@ -29,21 +32,21 @@ def afficher_image():
 
 def filtre_vert():
     global imageP, pil_image
-    matrice_pixel = traitements.filtre_vert(pil_image)
-    imageP = traitements.passer_en_image(matrice_pixel)
+    imageP = traitements.filtre_vert(pil_image)
     afficher_image()
 
 
 
 def ouvrir():
-    global imageP, pil_image, image
+    global imageP, pil_image
     image = tk.filedialog.askopenfilename() # https://www.pythontutorial.net/tkinter/tkinter-open-file-dialog/
     
     # Image adapté à Pillow
-    pil_img = Image.open(image)
-
+    pil_image = Image.open(image)
+    # .convert Important car certaines images ont le A = alpha soit la transparance
+    pil_image = pil_image.convert('RGBA') # https://stackoverflow.com/questions/51923503
     # Image adapté à Tkinter
-    imageP = ImageTk.PhotoImage(pil_img)
+    imageP = ImageTk.PhotoImage(pil_image)
     afficher_image()
 
 
