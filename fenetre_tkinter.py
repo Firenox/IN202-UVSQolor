@@ -14,9 +14,10 @@ canvas = False
 
 
 def afficher_image():
-    global pil_image, canvas, imageP
+    global pil_image, canvas, imageP, image1
     if canvas != False :
         canvas.destroy()
+        image1.destroy()
     
     # Placer canvas orange comme détour de l'image
     info_image = (pil_image.format, pil_image.size, pil_image.mode)
@@ -35,7 +36,10 @@ def filtre_vert():
     imageP = traitements.filtre_vert(pil_image)
     afficher_image()
 
-
+def filtre_sepia():
+    global imageP, pil_image
+    imageP = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
+    afficher_image()
 
 def ouvrir():
     global imageP, pil_image
@@ -76,7 +80,7 @@ def fenetre_principale() :
     Effets = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(menu=Effets, label="Effets")
     Effets.add_command(label="Filtre Vert", command=filtre_vert)
-
+    Effets.add_command(label="Filtre Sepia", command=filtre_sepia)
     root.mainloop()
 
 fenetre_principale()
