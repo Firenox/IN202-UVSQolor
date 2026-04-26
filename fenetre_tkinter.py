@@ -42,12 +42,14 @@ def filtre_sepia():
 
 
 def luminosite_valide():
-    global lumi_valeur, pil_image
-    traitements.correction_gamma(pil_image, (int(lumi_valeur)+50)/100)
+    global lumi_valeur, pil_image, slider, imageP
+    print("oui")
+    imageP, pil_image = traitements.correction_gamma(pil_image, int(slider.get())/100)
+    afficher_image()
 
 
 def luminosite():
-    global rootl, lumi_valeur
+    global rootl, lumi_valeur, slider
     rootl = tk.Tk()
     rootl.title("Adobe PhotoCrash 2026")
     rootl.geometry("300x100")
