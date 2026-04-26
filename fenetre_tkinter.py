@@ -9,7 +9,6 @@ import numpy as np
 from PIL import Image, ImageTk 
 
 global pil_image, canvas
-
 canvas = False
 
 
@@ -30,16 +29,36 @@ def afficher_image():
     image1.place(x= 60, y= 100, anchor="nw")
 
 
-
 def filtre_vert():
     global imageP, pil_image
-    imageP = traitements.filtre_vert(pil_image)
+    imageP, pil_image = traitements.filtre_vert(pil_image)
     afficher_image()
+
 
 def filtre_sepia():
     global imageP, pil_image
-    imageP = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
+    imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
     afficher_image()
+
+
+def luminosite_valide():
+    global lumi_valeur, pil_image
+    traitements.correction_gamma(pil_image, (int(lumi_valeur)+50)/100)
+
+
+def luminosite():
+    global rootl, lumi_valeur
+    rootl = tk.Tk()
+    rootl.title("Adobe PhotoCrash 2026")
+    rootl.geometry("300x100")
+
+    lumi_valeur = '' # https://www.geeksforgeeks.org/python/python-tkinter-scale-widget/
+    slider = tk.Scale(rootl, from_=-50, to=50, orient="horizontal") # https://stackoverflow.com/questions/73161883
+    slider.pack()
+    bouton_valider = tk.Button(rootl, text='Valider', command=luminosite_valide)
+    bouton_valider.pack() 
+    rootl.mainloop()
+
 
 def ouvrir():
     global imageP, pil_image
@@ -81,6 +100,7 @@ def fenetre_principale() :
     menubar.add_cascade(menu=Effets, label="Effets")
     Effets.add_command(label="Filtre Vert", command=filtre_vert)
     Effets.add_command(label="Filtre Sepia", command=filtre_sepia)
+    Effets.add_command(label="Luminosité", command=luminosite)
     root.mainloop()
 
 fenetre_principale()
