@@ -35,7 +35,7 @@ def filtre_sepia(pil_image, r1, g1, b1): # RGB : choisir l'intencité
 def correction_gamma(pil_image, facteur):
     matrice_pixel = passer_en_matrice(pil_image)
     
-    gamma = 2**(-facteur)
+    gamma = np.log(float(facteur)) / np.log(0.5) # https://stackoverflow.com/questions/10593100
     max_value = float(np.iinfo(matrice_pixel.dtype).max)
     matrice_gamma = matrice_pixel.astype(np.float64)
     matrice_gamma = max_value*(matrice_gamma/max_value)**gamma

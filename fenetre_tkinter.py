@@ -8,8 +8,28 @@ from tkinter import PhotoImage, Label, filedialog
 import numpy as np
 from PIL import Image, ImageTk 
 
-global pil_image, canvas
+global pil_image, canvas, original
 canvas = False
+original = False
+pil_image = None
+# Original permet de modifier l'origial pour le filtre luminosité
+
+def error_destroy():
+    global rootE
+    rootE.destroy()
+    ouvrir()
+
+def error():
+    global rootE
+    rootE = tk.Tk()
+    rootE.title("Adobe PhotoCrash 2026 ERROR")
+    rootE.geometry("300x100")
+    titre = tk.Label(rootE, text="Veillez choisir une image.", font=(100))
+    bouton_valider = tk.Button(rootE, text='Compris.', command=error_destroy)
+
+    titre.pack()
+    bouton_valider.pack()
+    rootE.mainloop()
 
 
 def afficher_image():
@@ -30,32 +50,45 @@ def afficher_image():
 
 
 def filtre_vert():
-    global imageP, pil_image
-    imageP, pil_image = traitements.filtre_vert(pil_image)
+    global imageP, pil_image, original
+    original = False
+    if pil_image != None:
+        imageP, pil_image = traitements.filtre_vert(pil_image)
+    else :
+        error()
     afficher_image()
 
 
 def filtre_sepia():
-    global imageP, pil_image
-    imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
+    global imageP, pil_image, original
+    original = False
+    if pil_image != None:
+        imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
+    else :
+        error()
     afficher_image()
 
 
 def luminosite_valide():
-    global lumi_valeur, pil_image, slider, imageP
-    print("oui")
-    imageP, pil_image = traitements.correction_gamma(pil_image, int(slider.get())/100)
+    global lumi_valeur, pil_image, slider, imageP, original
+    if original == False :
+        original = pil_image
+    if pil_image != None:
+        imageP, pil_image = traitements.correction_gamma(original, slider.get()/100)
+    else :
+        error()
     afficher_image()
 
 
 def luminosite():
-    global rootl, lumi_valeur, slider
+    global rootl, lumi_valeur, slider, original
+
     rootl = tk.Tk()
     rootl.title("Adobe PhotoCrash 2026")
     rootl.geometry("300x100")
 
     lumi_valeur = '' # https://www.geeksforgeeks.org/python/python-tkinter-scale-widget/
-    slider = tk.Scale(rootl, from_=-50, to=50, orient="horizontal") # https://stackoverflow.com/questions/73161883
+    slider = tk.Scale(rootl, from_=1, to=100 , orient="horizontal") # https://stackoverflow.com/questions/73161883
     slider.pack()
     bouton_valider = tk.Button(rootl, text='Valider', command=luminosite_valide)
     bouton_valider.pack() 
