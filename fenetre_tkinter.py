@@ -10,26 +10,38 @@ from PIL import Image, ImageTk
 
 global pil_image, canvas, original
 canvas = False
-original = False
 pil_image = None
 # Original permet de modifier l'origial pour le filtre luminosité
+
+
+def error_verif():
+    global pil_image
+    if pil_image == None:
+        error()
+    return True
+
 
 def error_destroy():
     global rootE
     rootE.destroy()
     ouvrir()
 
+
 def error():
     global rootE
-    rootE = tk.Tk()
+    rootE = tk.Toplevel(root)
     rootE.title("Adobe PhotoCrash 2026 ERROR")
     rootE.geometry("300x100")
+
     titre = tk.Label(rootE, text="Veillez choisir une image.", font=(100))
     bouton_valider = tk.Button(rootE, text='Compris.', command=error_destroy)
-
     titre.pack()
     bouton_valider.pack()
-    rootE.mainloop()
+
+    # Mettre en pause les fonctions principales car il n'y a plus de mainloop
+    rootE.grab_set()
+    rootE.wait_window() #https://stackoverflow.com/questions/78171468
+
 
 
 def afficher_image():
@@ -51,36 +63,49 @@ def afficher_image():
 
 def filtre_vert():
     global imageP, pil_image, original
-    original = False
-    if pil_image != None:
-        imageP, pil_image = traitements.filtre_vert(pil_image)
-    else :
-        error()
+
+    error_verif()
+    imageP, pil_image = traitements.filtre_vert(pil_image)
     afficher_image()
 
 
 def filtre_sepia():
     global imageP, pil_image, original
-    original = False
-    if pil_image != None:
-        imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
-    else :
-        error()
+
+    error_verif()
+    imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
     afficher_image()
 
 
-def luminosite_valide():
-    global lumi_valeur, pil_image, slider, imageP, original
-    if original == False :
-        original = pil_image
-    if pil_image != None:
-        imageP, pil_image = traitements.correction_gamma(original, slider.get()/100)
-    else :
-        error()
+def correction_gamma(valeur):
+    global pil_image, imageP, original
+    imageP, pil_image = traitements.correction_gamma(original, float(valeur))
     afficher_image()
+
+
+def applique_effet():
+    dialogue_effet.destroy()
+    original = pil_image
+
+def annule_effet():
+    global pil_image, original, imageP, imageOG
+
+    pil_image = original
+    imageP = imageOG
+
+    afficher_image()
+    dialogue_effet.destroy()
 
 
 def luminosite():
+    global original, pil_image, imageOG
+
+    error_verif()
+
+    imageOG = imageP
+    original = pil_image
+    
+    '''
     global rootl, lumi_valeur, slider, original
 
     rootl = tk.Tk()
@@ -93,6 +118,26 @@ def luminosite():
     bouton_valider = tk.Button(rootl, text='Valider', command=luminosite_valide)
     bouton_valider.pack() 
     rootl.mainloop()
+    '''
+
+    global dialogue_effet
+    
+    dialogue_effet = tk.Toplevel(root)
+    dialogue_effet.title("Luminosité")
+    dialogue_effet.geometry("300x150")
+    dialogue_effet.grab_set()
+    slider = tk.Scale(dialogue_effet, from_=0.05, to=0.95, orient=tk.HORIZONTAL, length=200, resolution=0.01, digits=2, command=correction_gamma)
+    slider.set(0.50)
+    slider.pack(pady=20)
+
+    frame_boutons = tk.Frame(dialogue_effet)
+    frame_boutons.pack(side=tk.BOTTOM, pady=10)
+
+    bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=applique_effet)
+    bouton_appliquer.pack(side=tk.LEFT, padx=10)
+
+    bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
+    bouton_annuler.pack(side=tk.LEFT, padx=10)
 
 
 def ouvrir():
