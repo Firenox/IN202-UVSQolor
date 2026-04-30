@@ -20,7 +20,6 @@ def filtre_vert(pil_image):
 def filtre_sepia(pil_image, r1, g1, b1): # RGB : choisir l'intencité
     table_sepia = calculs.table_sepia(r1, g1, b1)
     matrice_pixel = passer_en_matrice(pil_image)
-    print(table_sepia)
     for i in range(matrice_pixel.shape[0]):
         for j in range(matrice_pixel.shape[1]):
             r2, g2, b2, a2 = (matrice_pixel[i, j])
@@ -43,6 +42,24 @@ def correction_gamma(pil_image, facteur):
     #img_ajustee = Image.fromarray(matrice_gamma)
     
     return passer_en_image(matrice_gamma)
+
+
+def correction_contraste(pil_image, facteur, p):
+    matrice_pixel = passer_en_matrice(pil_image)
+    
+    max_value = float(np.iinfo(matrice_pixel.dtype).max)
+    matrice_contraste = matrice_pixel.astype(np.float64)
+    for i in range(matrice_contraste.shape[0]):
+        for j in range(matrice_contraste.shape[1]):
+            for k in range(3): #RGB
+                x = matrice_contraste[i][j][k]/max_value
+                if x <= 0.5:
+                    matrice_contraste[i][j][k] = (p*(x/p)**facteur)*max_value
+                else :
+                    matrice_contraste[i][j][k] = (1 - (1-p)*((1-x)/(1-p))**facteur)*max_value
+
+    
+    return passer_en_image(matrice_contraste.astype(np.uint8))
 
 
 def passer_en_matrice(pil_image):

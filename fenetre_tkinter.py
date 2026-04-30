@@ -43,7 +43,6 @@ def error():
     rootE.wait_window() #https://stackoverflow.com/questions/78171468
 
 
-
 def afficher_image():
     global pil_image, canvas, imageP, image1
     if canvas != False :
@@ -87,6 +86,7 @@ def applique_effet():
     dialogue_effet.destroy()
     original = pil_image
 
+
 def annule_effet():
     global pil_image, original, imageP, imageOG
 
@@ -126,7 +126,7 @@ def luminosite():
     dialogue_effet.title("Luminosité")
     dialogue_effet.geometry("300x150")
     dialogue_effet.grab_set()
-    slider = tk.Scale(dialogue_effet, from_=0.05, to=0.95, orient=tk.HORIZONTAL, length=200, resolution=0.01, digits=2, command=correction_gamma)
+    slider = tk.Scale(dialogue_effet, from_=0.05, to=0.95, orient=tk.HORIZONTAL, length=200, resolution=0.1, digits=2, command=correction_gamma)
     slider.set(0.50)
     slider.pack(pady=20)
 
@@ -138,6 +138,56 @@ def luminosite():
 
     bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
     bouton_annuler.pack(side=tk.LEFT, padx=10)
+
+
+def correction_contraste(): # error sans valeur
+    # https://python-course.eu/tkinter/sliders-in-tkinter.php
+    global pil_image, imageP, original, slider, slider2
+    imageP, pil_image = traitements.correction_contraste(original, 2**float(slider.get()), float(slider2.get()))
+    afficher_image()
+
+
+def contraste():
+    global original, pil_image, imageOG, slider, slider2
+
+    error_verif()
+
+    imageOG = imageP
+    original = pil_image
+
+    global dialogue_effet
+    
+    dialogue_effet = tk.Toplevel(root)
+    dialogue_effet.title("Contraste")
+    dialogue_effet.geometry("300x250")
+    dialogue_effet.grab_set()
+
+    # c
+    slider = tk.Scale(dialogue_effet, from_=-0.9, to=0.90, orient=tk.HORIZONTAL, length=200, resolution=0.01, digits=2)
+    slider.set(0)
+    slider.pack(pady=10)
+
+    # p
+    slider2 = tk.Scale(dialogue_effet, from_=0.1, to=0.9, orient=tk.HORIZONTAL, length=200, resolution=0.1, digits=2)
+    slider2.set(0.5)
+    slider2.pack(pady=10)
+
+    frame_boutons = tk.Frame(dialogue_effet)
+    frame_boutons.pack(side=tk.BOTTOM, pady=10)
+
+    bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=applique_effet)
+    bouton_appliquer.pack(side=tk.LEFT, padx=10)
+
+    bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
+    bouton_annuler.pack(side=tk.LEFT, padx=10)
+
+    frame_boutons = tk.Frame(dialogue_effet)
+    frame_boutons.pack(side=tk.BOTTOM, pady=10)
+
+    bouton_appliquer = tk.Button(frame_boutons, text="Afficher", command=correction_contraste)
+    bouton_appliquer.pack(side=tk.LEFT, padx=10)
+
+
 
 
 def ouvrir():
@@ -181,6 +231,7 @@ def fenetre_principale() :
     Effets.add_command(label="Filtre Vert", command=filtre_vert)
     Effets.add_command(label="Filtre Sepia", command=filtre_sepia)
     Effets.add_command(label="Luminosité", command=luminosite)
+    Effets.add_command(label="Contraste", command=contraste)
     root.mainloop()
 
 fenetre_principale()
