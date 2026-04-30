@@ -53,7 +53,7 @@ def correction_contraste(pil_image, facteur, p):
         for j in range(matrice_contraste.shape[1]):
             for k in range(3): #RGB
                 x = matrice_contraste[i][j][k]/max_value
-                if x <= 0.5:
+                if x <= p:
                     matrice_contraste[i][j][k] = (p*(x/p)**facteur)*max_value
                 else :
                     matrice_contraste[i][j][k] = (1 - (1-p)*((1-x)/(1-p))**facteur)*max_value
