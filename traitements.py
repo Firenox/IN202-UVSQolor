@@ -20,15 +20,17 @@ def filtre_vert(pil_image):
 def filtre_sepia(pil_image, r1, g1, b1): # RGB : choisir l'intencité
     table_sepia = calculs.table_sepia(r1, g1, b1)
     matrice_pixel = passer_en_matrice(pil_image)
-    for i in range(matrice_pixel.shape[0]):
-        for j in range(matrice_pixel.shape[1]):
-            r2, g2, b2, a2 = (matrice_pixel[i, j])
-            
-            r3 = int(r2 * table_sepia[0][0] + g2 * table_sepia[0][1] + b2 * table_sepia[0][2])
-            g3 = int(r2 * table_sepia[1][0] + g2 * table_sepia[1][1] + b2 * table_sepia[1][2])
-            b3 = int(r2 * table_sepia[2][0] + g2 * table_sepia[2][1] + b2 * table_sepia[2][2])
-            matrice_pixel[i, j] = [np.clip(r3, 0, 255), np.clip(g3, 0, 255), np.clip(b3, 0, 255), a2]
-    return passer_en_image(matrice_pixel)
+    # print(matrice_pixel)
+
+    # https://www.w3schools.com/python/numpy/numpy_array_slicing.asp
+    # [Ligne, Colonnes, Liste RGB]
+    matrice_pixel = matrice_pixel[:, :, 0:3]
+    matrice_pixel = np.dot(matrice_pixel, table_sepia)
+
+    matrice_pixel= np.clip(matrice_pixel, 0, 255)
+
+    # passage en int
+    return passer_en_image(matrice_pixel.astype(np.uint8))
 
 
 def correction_gamma(pil_image, facteur):

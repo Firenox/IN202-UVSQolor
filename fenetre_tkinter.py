@@ -73,6 +73,10 @@ def filtre_sepia():
 
     error_verif()
     imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
+
+    # Sepia pert le canal alpha, on le remet pour les autres filtres
+    pil_image = pil_image.convert('RGBA') # https://stackoverflow.com/questions/51923503
+
     afficher_image()
 
 
