@@ -16,8 +16,13 @@ pil_image = None
 
 def error_verif():
     global pil_image
+
     if pil_image == None:
         error()
+    
+    if pil_image == None:
+        return False
+
     return True
 
 
@@ -63,21 +68,21 @@ def afficher_image():
 def filtre_vert():
     global imageP, pil_image, original
 
-    error_verif()
-    imageP, pil_image = traitements.filtre_vert(pil_image)
-    afficher_image()
+    if error_verif() :
+        imageP, pil_image = traitements.filtre_vert(pil_image)
+        afficher_image()
 
 
 def filtre_sepia():
     global imageP, pil_image, original
 
-    error_verif()
-    imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
+    if error_verif() :
+        imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
 
-    # Sepia pert le canal alpha, on le remet pour les autres filtres
-    pil_image = pil_image.convert('RGBA') # https://stackoverflow.com/questions/51923503
+        # Sepia pert le canal alpha, on le remet pour les autres filtres
+        pil_image = pil_image.convert('RGBA') # https://stackoverflow.com/questions/51923503
 
-    afficher_image()
+        afficher_image()
 
 
 def correction_gamma(valeur):
@@ -104,44 +109,44 @@ def annule_effet():
 def luminosite():
     global original, pil_image, imageOG
 
-    error_verif()
+    if error_verif() :
 
-    imageOG = imageP
-    original = pil_image
-    
-    '''
-    global rootl, lumi_valeur, slider, original
+        imageOG = imageP
+        original = pil_image
+        
+        '''
+        global rootl, lumi_valeur, slider, original
 
-    rootl = tk.Tk()
-    rootl.title("Adobe PhotoCrash 2026")
-    rootl.geometry("300x100")
+        rootl = tk.Tk()
+        rootl.title("Adobe PhotoCrash 2026")
+        rootl.geometry("300x100")
 
-    lumi_valeur = '' # https://www.geeksforgeeks.org/python/python-tkinter-scale-widget/
-    slider = tk.Scale(rootl, from_=1, to=100 , orient="horizontal") # https://stackoverflow.com/questions/73161883
-    slider.pack()
-    bouton_valider = tk.Button(rootl, text='Valider', command=luminosite_valide)
-    bouton_valider.pack() 
-    rootl.mainloop()
-    '''
+        lumi_valeur = '' # https://www.geeksforgeeks.org/python/python-tkinter-scale-widget/
+        slider = tk.Scale(rootl, from_=1, to=100 , orient="horizontal") # https://stackoverflow.com/questions/73161883
+        slider.pack()
+        bouton_valider = tk.Button(rootl, text='Valider', command=luminosite_valide)
+        bouton_valider.pack() 
+        rootl.mainloop()
+        '''
 
-    global dialogue_effet
-    
-    dialogue_effet = tk.Toplevel(root)
-    dialogue_effet.title("Luminosité")
-    dialogue_effet.geometry("300x150")
-    dialogue_effet.grab_set()
-    slider = tk.Scale(dialogue_effet, from_=0.05, to=0.95, orient=tk.HORIZONTAL, length=200, resolution=0.1, digits=2, command=correction_gamma)
-    slider.set(0.50)
-    slider.pack(pady=20)
+        global dialogue_effet
+        
+        dialogue_effet = tk.Toplevel(root)
+        dialogue_effet.title("Luminosité")
+        dialogue_effet.geometry("300x150")
+        dialogue_effet.grab_set()
+        slider = tk.Scale(dialogue_effet, from_=0.05, to=0.95, orient=tk.HORIZONTAL, length=200, resolution=0.01, digits=2, command=correction_gamma)
+        slider.set(0.50)
+        slider.pack(pady=20)
 
-    frame_boutons = tk.Frame(dialogue_effet)
-    frame_boutons.pack(side=tk.BOTTOM, pady=10)
+        frame_boutons = tk.Frame(dialogue_effet)
+        frame_boutons.pack(side=tk.BOTTOM, pady=10)
 
-    bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=applique_effet)
-    bouton_appliquer.pack(side=tk.LEFT, padx=10)
+        bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=applique_effet)
+        bouton_appliquer.pack(side=tk.LEFT, padx=10)
 
-    bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
-    bouton_annuler.pack(side=tk.LEFT, padx=10)
+        bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
+        bouton_annuler.pack(side=tk.LEFT, padx=10)
 
 
 def correction_contraste(): # error sans valeur
@@ -154,42 +159,42 @@ def correction_contraste(): # error sans valeur
 def contraste():
     global original, pil_image, imageOG, slider, slider2
 
-    error_verif()
+    if error_verif() :
 
-    imageOG = imageP
-    original = pil_image
+        imageOG = imageP
+        original = pil_image
 
-    global dialogue_effet
-    
-    dialogue_effet = tk.Toplevel(root)
-    dialogue_effet.title("Contraste")
-    dialogue_effet.geometry("300x250")
-    dialogue_effet.grab_set()
+        global dialogue_effet
+        
+        dialogue_effet = tk.Toplevel(root)
+        dialogue_effet.title("Contraste")
+        dialogue_effet.geometry("300x250")
+        dialogue_effet.grab_set()
 
-    # c
-    slider = tk.Scale(dialogue_effet, from_=-0.9, to=0.90, orient=tk.HORIZONTAL, length=200, resolution=0.01, digits=2)
-    slider.set(0)
-    slider.pack(pady=10)
+        # c
+        slider = tk.Scale(dialogue_effet, from_=-0.99, to=0.99, orient=tk.HORIZONTAL, length=200, resolution=0.01, digits=2)
+        slider.set(0)
+        slider.pack(pady=10)
 
-    # p
-    slider2 = tk.Scale(dialogue_effet, from_=0.1, to=0.9, orient=tk.HORIZONTAL, length=200, resolution=0.1, digits=2)
-    slider2.set(0.5)
-    slider2.pack(pady=10)
+        # p
+        slider2 = tk.Scale(dialogue_effet, from_=0.01, to=0.99, orient=tk.HORIZONTAL, length=200, resolution=0.01, digits=2)
+        slider2.set(0.5)
+        slider2.pack(pady=10)
 
-    frame_boutons = tk.Frame(dialogue_effet)
-    frame_boutons.pack(side=tk.BOTTOM, pady=10)
+        frame_boutons = tk.Frame(dialogue_effet)
+        frame_boutons.pack(side=tk.BOTTOM, pady=10)
 
-    bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=applique_effet)
-    bouton_appliquer.pack(side=tk.LEFT, padx=10)
+        bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=applique_effet)
+        bouton_appliquer.pack(side=tk.LEFT, padx=10)
 
-    bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
-    bouton_annuler.pack(side=tk.LEFT, padx=10)
+        bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
+        bouton_annuler.pack(side=tk.LEFT, padx=10)
 
-    frame_boutons = tk.Frame(dialogue_effet)
-    frame_boutons.pack(side=tk.BOTTOM, pady=10)
+        frame_boutons = tk.Frame(dialogue_effet)
+        frame_boutons.pack(side=tk.BOTTOM, pady=10)
 
-    bouton_appliquer = tk.Button(frame_boutons, text="Afficher", command=correction_contraste)
-    bouton_appliquer.pack(side=tk.LEFT, padx=10)
+        bouton_appliquer = tk.Button(frame_boutons, text="Afficher", command=correction_contraste)
+        bouton_appliquer.pack(side=tk.LEFT, padx=10)
 
 
 
@@ -197,14 +202,15 @@ def contraste():
 def ouvrir():
     global imageP, pil_image
     image = tk.filedialog.askopenfilename() # https://www.pythontutorial.net/tkinter/tkinter-open-file-dialog/
-    
-    # Image adapté à Pillow
-    pil_image = Image.open(image)
-    # .convert Important car certaines images ont le A = alpha soit la transparance
-    pil_image = pil_image.convert('RGBA') # https://stackoverflow.com/questions/51923503
-    # Image adapté à Tkinter
-    imageP = ImageTk.PhotoImage(pil_image)
-    afficher_image()
+
+    if image != "":
+        # Image adapté à Pillow
+        pil_image = Image.open(image)
+        # .convert Important car certaines images ont le A = alpha soit la transparance
+        pil_image = pil_image.convert('RGBA') # https://stackoverflow.com/questions/51923503
+        # Image adapté à Tkinter
+        imageP = ImageTk.PhotoImage(pil_image)
+        afficher_image()
 
 
 def fenetre_principale() :
