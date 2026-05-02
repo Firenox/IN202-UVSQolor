@@ -78,14 +78,14 @@ def correction_contraste(pil_image, facteur, p):
 def filtre_flou(pil_image):
     matrice_pixel = passer_en_matrice(pil_image)
     matrice_pixel = matrice_pixel.astype(np.float64)
-
+    matrice_pixel2 = matrice_pixel.copy()
     noyeau = np.array([[1/9, 1/9, 1/9],
                       [1/9, 1/9, 1/9],
                       [1/9, 1/9, 1/9]])
 
     for i in range(3):
-        matrice_pixel[:,:,i] = convolve2d(matrice_pixel[:,:,i], noyeau, boundary='symm', mode='same')
-    return passer_en_image(matrice_pixel.astype(np.uint8))
+        matrice_pixel2[:,:,i] = convolve2d(matrice_pixel[:,:,i], noyeau, boundary='symm', mode='same')
+    return passer_en_image(matrice_pixel2.astype(np.uint8))
 
 
 def passer_en_matrice(pil_image):
@@ -95,4 +95,5 @@ def passer_en_matrice(pil_image):
 def passer_en_image(matrice_pixel):
     pil_image = Image.fromarray(matrice_pixel)
     a = (ImageTk.PhotoImage(pil_image), pil_image) # https://stackoverflow.com/questions/18369936
+
     return a

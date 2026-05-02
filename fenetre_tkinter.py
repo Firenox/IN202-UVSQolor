@@ -8,11 +8,34 @@ from tkinter import PhotoImage, Label, filedialog
 import numpy as np
 from PIL import Image, ImageTk 
 
-global pil_image, canvas, original
+global pil_image, canvas, original, retablir_liste, annuler_liste
 canvas = False
 pil_image = None
+annuler_liste = [None, None, None]
+retablir_liste = [None, None, None]
+
 # Original permet de modifier l'origial pour le filtre luminosité
 
+
+def annuler():
+    global retablir_liste, annuler_liste, pil_image, imageP
+    if annuler_liste[2] != None:
+        retablir_liste[0], retablir_liste[1], retablir_liste[2] = retablir_liste[1], retablir_liste[2], pil_image
+        pil_image = annuler_liste[2]
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = None, annuler_liste[0], annuler_liste[1]
+        
+        imageP = ImageTk.PhotoImage(pil_image)
+        afficher_image()
+
+def retablir():
+    global retablir_liste, annuler_liste, pil_image, imageP
+    if retablir_liste[2] != None:
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image        
+        pil_image = retablir_liste[2]
+        retablir_liste[0], retablir_liste[1], retablir_liste[2] = None, retablir_liste[0], retablir_liste[1]
+
+        imageP = ImageTk.PhotoImage(pil_image)
+        afficher_image()
 
 def error_verif():
     global pil_image
@@ -66,23 +89,29 @@ def afficher_image():
 
 
 def filtre_vert():
-    global imageP, pil_image
+    global imageP, pil_image, annuler_liste
     if error_verif() :
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP, pil_image = traitements.filtre_couleur(pil_image, 0)
+
         afficher_image()
 
 
 def filtre_rouge():
-    global imageP, pil_image
+    global imageP, pil_image, annuler_liste
     if error_verif() :
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP, pil_image = traitements.filtre_couleur(pil_image, 1)
+
         afficher_image()
 
 
 def filtre_bleu():
-    global imageP, pil_image
+    global imageP, pil_image, annuler_liste
     if error_verif() :
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP, pil_image = traitements.filtre_couleur(pil_image, 2)
+
         afficher_image()
 
 
@@ -90,7 +119,9 @@ def filtre_sepia():
     global imageP, pil_image
 
     if error_verif() :
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
+
         afficher_image()
 
 
@@ -101,8 +132,8 @@ def correction_gamma(valeur):
 
 
 def applique_effet():
+    global annuler_liste
     dialogue_effet.destroy()
-    original = pil_image
 
 
 def annule_effet():
@@ -119,24 +150,10 @@ def luminosite():
     global original, pil_image, imageOG
 
     if error_verif() :
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
 
         imageOG = imageP
         original = pil_image
-        
-        '''
-        global rootl, lumi_valeur, slider, original
-
-        rootl = tk.Tk()
-        rootl.title("Adobe PhotoCrash 2026")
-        rootl.geometry("300x100")
-
-        lumi_valeur = '' # https://www.geeksforgeeks.org/python/python-tkinter-scale-widget/
-        slider = tk.Scale(rootl, from_=1, to=100 , orient="horizontal") # https://stackoverflow.com/questions/73161883
-        slider.pack()
-        bouton_valider = tk.Button(rootl, text='Valider', command=luminosite_valide)
-        bouton_valider.pack() 
-        rootl.mainloop()
-        '''
 
         global dialogue_effet
         
@@ -207,9 +224,10 @@ def contraste():
 
 
 def flou():
-    global imageP, pil_image
+    global imageP, pil_image, annuler_liste
 
     if error_verif() :
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP, pil_image = traitements.filtre_flou(pil_image)
         afficher_image()
 
@@ -246,17 +264,23 @@ def fenetre_principale() :
 
     # Menu
     menubar = tk.Menu()
-
+    root.config(menu=menubar)
     Fichier = tk.Menu(menubar, tearoff=False)
     menubar.add_cascade(menu=Fichier, label="Fichier")
-    root.config(menu=menubar)
+  
     Fichier.add_command(label="Ouvrir", command=ouvrir)
 
+
+    Edition = tk.Menu(menubar, tearoff=False)
     Effets = tk.Menu(menubar, tearoff=False)
     Couleur = tk.Menu(menubar, tearoff=False)
 
+    menubar.add_cascade(menu=Edition, label="Édition")
     menubar.add_cascade(menu=Effets, label="Effets")
     Effets.add_cascade(menu=Couleur, label="Filtre couleur")
+
+    Edition.add_command(label="Annuler", command=annuler)
+    Edition.add_command(label="Rétablir", command=retablir)
 
     Couleur.add_command(label="Filtre Vert", command=filtre_vert)
     Couleur.add_command(label="Filtre Rouge", command=filtre_rouge)
