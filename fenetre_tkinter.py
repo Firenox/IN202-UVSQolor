@@ -67,9 +67,22 @@ def afficher_image():
 
 def filtre_vert():
     global imageP, pil_image
-
     if error_verif() :
-        imageP, pil_image = traitements.filtre_vert(pil_image)
+        imageP, pil_image = traitements.filtre_couleur(pil_image, 0)
+        afficher_image()
+
+
+def filtre_rouge():
+    global imageP, pil_image
+    if error_verif() :
+        imageP, pil_image = traitements.filtre_couleur(pil_image, 1)
+        afficher_image()
+
+
+def filtre_bleu():
+    global imageP, pil_image
+    if error_verif() :
+        imageP, pil_image = traitements.filtre_couleur(pil_image, 2)
         afficher_image()
 
 
@@ -240,12 +253,20 @@ def fenetre_principale() :
     Fichier.add_command(label="Ouvrir", command=ouvrir)
 
     Effets = tk.Menu(menubar, tearoff=False)
+    Couleur = tk.Menu(menubar, tearoff=False)
+
     menubar.add_cascade(menu=Effets, label="Effets")
-    Effets.add_command(label="Filtre Vert", command=filtre_vert)
+    Effets.add_cascade(menu=Couleur, label="Filtre couleur")
+
+    Couleur.add_command(label="Filtre Vert", command=filtre_vert)
+    Couleur.add_command(label="Filtre Rouge", command=filtre_rouge)
+    Couleur.add_command(label="Filtre Bleu", command=filtre_bleu)
+
     Effets.add_command(label="Filtre Sepia", command=filtre_sepia)
     Effets.add_command(label="Luminosité", command=luminosite)
     Effets.add_command(label="Contraste", command=contraste)
     Effets.add_command(label="Flou", command=flou)
+
     root.mainloop()
 
 fenetre_principale()
