@@ -16,7 +16,9 @@ retablir_liste = [None, None, None]
 
 # Original permet de modifier l'origial pour le filtre luminosité
 
-
+'''
+Undo
+'''
 def annuler():
     global retablir_liste, annuler_liste, pil_image, imageP
     if annuler_liste[2] != None:
@@ -26,6 +28,7 @@ def annuler():
         
         imageP = ImageTk.PhotoImage(pil_image)
         afficher_image()
+
 
 def retablir():
     global retablir_liste, annuler_liste, pil_image, imageP
@@ -37,6 +40,10 @@ def retablir():
         imageP = ImageTk.PhotoImage(pil_image)
         afficher_image()
 
+
+'''
+Verif Image
+'''
 def error_verif():
     global pil_image
 
@@ -59,7 +66,7 @@ def error():
     global rootE
     rootE = tk.Toplevel(root)
     rootE.title("Adobe PhotoCrash 2026 ERROR")
-    rootE.geometry("300x100")
+    rootE.geometry("300x70")
 
     titre = tk.Label(rootE, text="Veillez choisir une image.", font=(100))
     bouton_valider = tk.Button(rootE, text='Compris.', command=error_destroy)
@@ -79,7 +86,7 @@ def afficher_image():
     
     # Placer canvas orange comme détour de l'image
     info_image = (pil_image.format, pil_image.size, pil_image.mode)
-    canvas = tk.Canvas(root, width=info_image[1][0]+20, height=info_image[1][1]+20, bg="orange")
+    canvas = tk.Canvas(root, width=info_image[1][0]+25, height=info_image[1][1]+25, bg="orange")
     canvas.place(x = 50, y = 90, anchor="nw")
 
     # Placer l'image()
@@ -88,6 +95,28 @@ def afficher_image():
     image1.place(x= 60, y= 100, anchor="nw")
 
 
+def fermer_erreur():
+    global erreur
+    erreur.destroy()
+
+
+def erreur_ratio():
+    global erreur
+    
+    erreur = tk.Toplevel(root)
+    erreur.title("Erreur")
+    erreur.geometry("380x70")
+    
+    titre = tk.Label(erreur, text="Les deux images n'ont pas la même taille", font=(100))
+    titre.grid()
+
+    bouton = tk.Button(erreur, text="D'accord", command=fermer_erreur)
+    bouton.grid()
+
+
+'''
+Filtres
+'''
 def filtre_vert():
     global imageP, pil_image, annuler_liste
     if error_verif() :
@@ -232,6 +261,28 @@ def flou():
         afficher_image()
 
 
+def nettete():
+    global imageP, pil_image, annuler_liste
+
+    if error_verif() :
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
+        imageP, pil_image = traitements.filtre_nettete(pil_image)
+        afficher_image()
+    
+
+def fusion():
+    global imageP, pil_image, annuler_liste
+
+    if error_verif() :
+        imageP2, pil_image2 = ouvrir_2eme()
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
+        imageP, pil_image = traitements.filtre_fusion(pil_image, pil_image2)
+
+        if pil_image == None :
+            erreur_ratio()
+        else :
+            afficher_image()
+
 
 def ouvrir():
     global imageP, pil_image
@@ -245,6 +296,16 @@ def ouvrir():
         # Image adapté à Tkinter
         imageP = ImageTk.PhotoImage(pil_image)
         afficher_image()
+
+
+def ouvrir_2eme():
+    # 2ème image pour la fusion
+    image = tk.filedialog.askopenfilename()
+    if image != "":
+        pil_image2 = Image.open(image)
+        pil_image2 = pil_image2.convert('RGBA')
+        imageP2 = ImageTk.PhotoImage(pil_image2)
+    return (imageP2, pil_image2)
 
 
 def fenetre_principale() :
@@ -282,14 +343,16 @@ def fenetre_principale() :
     Edition.add_command(label="Annuler", command=annuler)
     Edition.add_command(label="Rétablir", command=retablir)
 
-    Couleur.add_command(label="Filtre Vert", command=filtre_vert)
-    Couleur.add_command(label="Filtre Rouge", command=filtre_rouge)
-    Couleur.add_command(label="Filtre Bleu", command=filtre_bleu)
+    Couleur.add_command(label="Vert", command=filtre_vert)
+    Couleur.add_command(label="Rouge", command=filtre_rouge)
+    Couleur.add_command(label="Bleu", command=filtre_bleu)
 
     Effets.add_command(label="Filtre Sepia", command=filtre_sepia)
     Effets.add_command(label="Luminosité", command=luminosite)
     Effets.add_command(label="Contraste", command=contraste)
     Effets.add_command(label="Flou", command=flou)
+    Effets.add_command(label="Netteté", command=nettete)
+    Effets.add_command(label="Fusion", command=fusion)
 
     root.mainloop()
 

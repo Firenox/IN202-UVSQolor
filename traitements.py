@@ -88,6 +88,40 @@ def filtre_flou(pil_image):
     return passer_en_image(matrice_pixel2.astype(np.uint8))
 
 
+def filtre_nettete(pil_image):
+    matrice_floue = passer_en_matrice(filtre_flou(pil_image)[1])
+
+    matrice_pixel = passer_en_matrice(pil_image)
+    matrice_pixel = matrice_pixel.astype(np.float64)
+
+    nettete = matrice_pixel - matrice_floue
+    matrice_pixel = (matrice_pixel + nettete)
+
+    return passer_en_image(np.clip(matrice_pixel, 0, 255).astype(np.uint8))
+
+
+def filtre_fusion(pil_image, pil_image2):
+    matrice_pixel = passer_en_matrice(pil_image)
+    matrice_pixel = matrice_pixel.astype(np.float64)
+
+    matrice_pixel2 = passer_en_matrice(pil_image2)
+    matrice_pixel2 = matrice_pixel2.astype(np.float64)
+
+    if matrice_pixel.shape[0] == matrice_pixel2.shape[0] and matrice_pixel.shape[1] == matrice_pixel2.shape[1]:
+
+        image2_alpha = matrice_pixel2[:,:,3]/255
+
+        for i in range(3):
+            matrice_pixel[:,:,i] = matrice_pixel[:,:,i] + matrice_pixel2[:,:,i]* image2_alpha
+
+        matrice_pixel = np.clip(matrice_pixel, 0 , 255)
+        return passer_en_image(matrice_pixel.astype(np.uint8))
+
+    else :
+        a = (None, None)
+        return a
+
+
 def passer_en_matrice(pil_image):
     return np.array(pil_image)
 
