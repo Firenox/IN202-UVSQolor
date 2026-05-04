@@ -8,11 +8,12 @@ from tkinter import PhotoImage, Label, filedialog
 import numpy as np
 from PIL import Image, ImageTk 
 
-global pil_image, canvas, original, retablir_liste, annuler_liste
+global pil_image, canvas, original, retablir_liste, annuler_liste, image_importee
 canvas = False
 pil_image = None
 annuler_liste = [None, None, None]
 retablir_liste = [None, None, None]
+image_importee = ((None, None))
 
 # Original permet de modifier l'origial pour le filtre luminosité
 
@@ -77,6 +78,14 @@ def error():
     rootE.grab_set()
     rootE.wait_window() #https://stackoverflow.com/questions/78171468
 
+
+def image_importee_restaurer():
+    global image_importee, pil_image, imageP
+    if image_importee[0] != None :
+        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
+        imageP = image_importee[0]
+        pil_image = image_importee[1]
+        afficher_image()
 
 def afficher_image():
     global pil_image, canvas, imageP, image1
@@ -275,8 +284,9 @@ def fusion():
 
     if error_verif() :
         imageP2, pil_image2 = ouvrir_2eme()
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
-        imageP, pil_image = traitements.filtre_fusion(pil_image, pil_image2)
+        if imageP2 != None :
+            annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
+            imageP, pil_image = traitements.filtre_fusion(pil_image, pil_image2)
 
         if pil_image == None :
             erreur_ratio()
@@ -285,7 +295,7 @@ def fusion():
 
 
 def ouvrir():
-    global imageP, pil_image
+    global imageP, pil_image, image_importee
     image = tk.filedialog.askopenfilename() # https://www.pythontutorial.net/tkinter/tkinter-open-file-dialog/
 
     if image != "":
@@ -297,6 +307,8 @@ def ouvrir():
         imageP = ImageTk.PhotoImage(pil_image)
         afficher_image()
 
+        image_importee = ((imageP, pil_image))
+
 
 def ouvrir_2eme():
     # 2ème image pour la fusion
@@ -305,7 +317,7 @@ def ouvrir_2eme():
         pil_image2 = Image.open(image)
         pil_image2 = pil_image2.convert('RGBA')
         imageP2 = ImageTk.PhotoImage(pil_image2)
-    return (imageP2, pil_image2)
+        return ((imageP2, pil_image2))
 
 
 def fenetre_principale() :
@@ -342,6 +354,7 @@ def fenetre_principale() :
 
     Edition.add_command(label="Annuler", command=annuler)
     Edition.add_command(label="Rétablir", command=retablir)
+    Edition.add_command(label="Tout annuler", command=image_importee_restaurer)
 
     Couleur.add_command(label="Vert", command=filtre_vert)
     Couleur.add_command(label="Rouge", command=filtre_rouge)
@@ -355,5 +368,3 @@ def fenetre_principale() :
     Effets.add_command(label="Fusion", command=fusion)
 
     root.mainloop()
-
-fenetre_principale()
