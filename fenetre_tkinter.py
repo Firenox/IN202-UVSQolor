@@ -8,35 +8,32 @@ from tkinter import PhotoImage, Label, filedialog
 import numpy as np
 from PIL import Image, ImageTk 
 
-global pil_image, canvas, original, retablir_liste, annuler_liste, image_importee
 canvas = False
 pil_image = None
-annuler_liste = [None, None, None]
-retablir_liste = [None, None, None]
 image_importee = ((None, None))
 
-# Original permet de modifier l'origial pour le filtre luminosité
 
 '''
 Undo
 '''
+# On glisse de droite à gauche
 def annuler():
-    global retablir_liste, annuler_liste, pil_image, imageP
-    if annuler_liste[2] != None:
-        retablir_liste[0], retablir_liste[1], retablir_liste[2] = retablir_liste[1], retablir_liste[2], pil_image
-        pil_image = annuler_liste[2]
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = None, annuler_liste[0], annuler_liste[1]
+    global pil_image, imageP
+    if traitements.annuler_liste[2] != None:
+        traitements.retablir_liste[0], traitements.retablir_liste[1], traitements.retablir_liste[2] = traitements.retablir_liste[1], traitements.retablir_liste[2], pil_image
+        pil_image = traitements.annuler_liste[2]
+        traitements.annuler_liste[0],traitements.annuler_liste[1],traitements.annuler_liste[2] = None, traitements.annuler_liste[0], traitements.annuler_liste[1]
         
         imageP = ImageTk.PhotoImage(pil_image)
         afficher_image()
 
 
 def retablir():
-    global retablir_liste, annuler_liste, pil_image, imageP
-    if retablir_liste[2] != None:
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image        
-        pil_image = retablir_liste[2]
-        retablir_liste[0], retablir_liste[1], retablir_liste[2] = None, retablir_liste[0], retablir_liste[1]
+    global pil_image, imageP
+    if traitements.retablir_liste[2] != None:
+        traitements.annuler_liste[0],traitements.annuler_liste[1],traitements.annuler_liste[2] = traitements.annuler_liste[1], traitements.annuler_liste[2], pil_image        
+        pil_image = traitements.retablir_liste[2]
+        traitements.retablir_liste[0], traitements.retablir_liste[1], traitements.retablir_liste[2] = None, traitements.retablir_liste[0], traitements.retablir_liste[1]
 
         imageP = ImageTk.PhotoImage(pil_image)
         afficher_image()
@@ -82,7 +79,6 @@ def error():
 def image_importee_restaurer():
     global image_importee, pil_image, imageP
     if image_importee[0] != None :
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP = image_importee[0]
         pil_image = image_importee[1]
         afficher_image()
@@ -104,11 +100,6 @@ def afficher_image():
     image1.place(x= 60, y= 100, anchor="nw")
 
 
-def fermer_erreur():
-    global erreur
-    erreur.destroy()
-
-
 def erreur_ratio():
     global erreur
     
@@ -119,36 +110,18 @@ def erreur_ratio():
     titre = tk.Label(erreur, text="Les deux images n'ont pas la même taille", font=(100))
     titre.grid()
 
-    bouton = tk.Button(erreur, text="D'accord", command=fermer_erreur)
+    bouton = tk.Button(erreur, text="D'accord", command=lambda: erreur.destroy())
     bouton.grid()
 
 
 '''
-Filtres
+Filtres callback
 '''
-def filtre_vert():
-    global imageP, pil_image, annuler_liste
+def filtre_rgb(couleur):
+    global imageP, pil_image
     if error_verif() :
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
-        imageP, pil_image = traitements.filtre_couleur(pil_image, 0)
-
-        afficher_image()
-
-
-def filtre_rouge():
-    global imageP, pil_image, annuler_liste
-    if error_verif() :
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
-        imageP, pil_image = traitements.filtre_couleur(pil_image, 1)
-
-        afficher_image()
-
-
-def filtre_bleu():
-    global imageP, pil_image, annuler_liste
-    if error_verif() :
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
-        imageP, pil_image = traitements.filtre_couleur(pil_image, 2)
+        
+        imageP, pil_image = traitements.filtre_couleur(pil_image, couleur)
 
         afficher_image()
 
@@ -157,7 +130,6 @@ def filtre_sepia():
     global imageP, pil_image
 
     if error_verif() :
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP, pil_image = traitements.filtre_sepia(pil_image, 1.3, 1.2, 1.0)
 
         afficher_image()
@@ -167,11 +139,6 @@ def correction_gamma(valeur):
     global pil_image, imageP, original
     imageP, pil_image = traitements.correction_gamma(original, float(valeur))
     afficher_image()
-
-
-def applique_effet():
-    global annuler_liste
-    dialogue_effet.destroy()
 
 
 def annule_effet():
@@ -188,7 +155,6 @@ def luminosite():
     global original, pil_image, imageOG
 
     if error_verif() :
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
 
         imageOG = imageP
         original = pil_image
@@ -206,7 +172,7 @@ def luminosite():
         frame_boutons = tk.Frame(dialogue_effet)
         frame_boutons.pack(side=tk.BOTTOM, pady=10)
 
-        bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=applique_effet)
+        bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=lambda : dialogue_effet.destroy())
         bouton_appliquer.pack(side=tk.LEFT, padx=10)
 
         bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
@@ -262,30 +228,27 @@ def contraste():
 
 
 def flou():
-    global imageP, pil_image, annuler_liste
+    global imageP, pil_image
 
     if error_verif() :
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP, pil_image = traitements.filtre_flou(pil_image)
         afficher_image()
 
 
 def nettete():
-    global imageP, pil_image, annuler_liste
+    global imageP, pil_image
 
     if error_verif() :
-        annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
         imageP, pil_image = traitements.filtre_nettete(pil_image)
         afficher_image()
     
 
 def fusion():
-    global imageP, pil_image, annuler_liste
+    global imageP, pil_image
 
     if error_verif() :
         imageP2, pil_image2 = ouvrir_2eme()
         if imageP2 != None :
-            annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
             imageP, pil_image = traitements.filtre_fusion(pil_image, pil_image2)
 
         if pil_image == None :
@@ -356,9 +319,9 @@ def fenetre_principale() :
     Edition.add_command(label="Rétablir", command=retablir)
     Edition.add_command(label="Tout annuler", command=image_importee_restaurer)
 
-    Couleur.add_command(label="Vert", command=filtre_vert)
-    Couleur.add_command(label="Rouge", command=filtre_rouge)
-    Couleur.add_command(label="Bleu", command=filtre_bleu)
+    Couleur.add_command(label="Vert", command=lambda : filtre_rgb(0))
+    Couleur.add_command(label="Rouge", command=lambda : filtre_rgb(1))
+    Couleur.add_command(label="Bleu", command=lambda : filtre_rgb(2))
 
     Effets.add_command(label="Filtre Sepia", command=filtre_sepia)
     Effets.add_command(label="Luminosité", command=luminosite)

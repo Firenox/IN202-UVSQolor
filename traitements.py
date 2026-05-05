@@ -7,6 +7,11 @@ import calculs
 from scipy.signal import convolve2d
 
 
+# Dans traitements.py car passer_en_matrice() est utilisée par toutes les fonctions de fenetre tkinter
+annuler_liste = [None, None, None]
+retablir_liste = [None, None, None]
+
+
 def filtre_couleur(pil_image, couleur):
     matrice_pixel = passer_en_matrice(pil_image)
     nblig = matrice_pixel.shape[0]
@@ -123,6 +128,8 @@ def filtre_fusion(pil_image, pil_image2):
 
 
 def passer_en_matrice(pil_image):
+    global annuler_liste
+    annuler_liste[0],annuler_liste[1],annuler_liste[2] = annuler_liste[1], annuler_liste[2], pil_image
     return np.array(pil_image)
 
 
