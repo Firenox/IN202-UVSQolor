@@ -214,7 +214,7 @@ def contraste():
         frame_boutons = tk.Frame(dialogue_effet)
         frame_boutons.pack(side=tk.BOTTOM, pady=10)
 
-        bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=applique_effet)
+        bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=lambda: dialogue_effet.destroy())
         bouton_appliquer.pack(side=tk.LEFT, padx=10)
 
         bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
