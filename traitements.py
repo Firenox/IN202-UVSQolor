@@ -7,7 +7,7 @@ import calculs
 from scipy.signal import convolve2d
 
 
-# Dans traitements.py car passer_en_matrice() est utilisée par toutes les fonctions de fenetre tkinter
+# Annuler est dans traitements.py car passer_en_matrice() est utilisée par tous les filtres de fenetre_tkinter
 annuler_liste = [None, None, None]
 retablir_liste = [None, None, None]
 
@@ -32,7 +32,18 @@ def filtre_couleur(pil_image, couleur):
             for j in range(nbcol):
                 matrice_pixel[i, j] = (0, 0, matrice_pixel[i, j, 2])
 
-    return passer_en_image(np.clip(matrice_pixel, 0, 255))
+    # GRIS
+    if couleur == 3: # Gris
+        # Calcul de la luminance
+        luminance = (matrice_pixel[:, :, 0] * 0.299 + 
+                     matrice_pixel[:, :, 1] * 0.587 + 
+                     matrice_pixel[:, :, 2] * 0.114)
+        
+        # Même valeur de gris sur les 3 canaux (RGB)
+        for i in range(3):
+            matrice_pixel[:, :, i] = luminance
+
+    return passer_en_image(np.clip(matrice_pixel, 0, 255).astype(np.uint8))
 
 
 # LENT, UTILISER DOT
@@ -67,7 +78,7 @@ def correction_contraste(pil_image, facteur, p):
     
     max_value = float(np.iinfo(matrice_pixel.dtype).max)
     matrice_contraste = matrice_pixel.astype(np.float64)
-    for i in range(matrice_contraste.shape[0]):
+    for i in range(matrice_contraste.shape[0]): # Lent
         for j in range(matrice_contraste.shape[1]):
             for k in range(3): #RGB
                 x = matrice_contraste[i, j, k]/max_value
@@ -105,26 +116,39 @@ def filtre_nettete(pil_image):
     return passer_en_image(np.clip(matrice_pixel, 0, 255).astype(np.uint8))
 
 
-def filtre_fusion(pil_image, pil_image2):
+def filtre_fusion(pil_image, pil_image2): # Les images sont toujours à la même taille
     matrice_pixel = passer_en_matrice(pil_image)
     matrice_pixel = matrice_pixel.astype(np.float64)
 
     matrice_pixel2 = passer_en_matrice(pil_image2)
     matrice_pixel2 = matrice_pixel2.astype(np.float64)
 
-    if matrice_pixel.shape[0] == matrice_pixel2.shape[0] and matrice_pixel.shape[1] == matrice_pixel2.shape[1]:
+    image2_alpha = matrice_pixel2[:,:,3]/255
 
-        image2_alpha = matrice_pixel2[:,:,3]/255
+    for i in range(3):
+        matrice_pixel[:,:,i] = matrice_pixel[:,:,i] + matrice_pixel2[:,:,i]* image2_alpha
 
-        for i in range(3):
-            matrice_pixel[:,:,i] = matrice_pixel[:,:,i] + matrice_pixel2[:,:,i]* image2_alpha
+    matrice_pixel = np.clip(matrice_pixel, 0 , 255)
+    return passer_en_image(matrice_pixel.astype(np.uint8))
 
-        matrice_pixel = np.clip(matrice_pixel, 0 , 255)
-        return passer_en_image(matrice_pixel.astype(np.uint8))
 
-    else :
-        a = (None, None)
-        return a
+def filtre_bords(pil_image):
+    matrice_pixel = passer_en_matrice(pil_image)
+    matrice_pixel = matrice_pixel.astype(np.float64)
+    
+    #Matrice vide de même taille pour stocker le résultat
+    matrice_bords = np.zeros_like(matrice_pixel)
+    
+    # Noyau de convolution pour la détection des contours (Laplacien)
+    noyau = np.array([[-1, -1, -1],
+                      [-1,  8, -1],
+                      [-1, -1, -1]])
+
+    # Application du noyau sur chaque canal RGB
+    for i in range(3):
+        matrice_bords[:, :, i] = convolve2d(matrice_pixel[:, :, i], noyau, boundary='symm', mode='same')
+        
+    return passer_en_image(np.clip(matrice_bords, 0, 255).astype(np.uint8))
 
 
 def passer_en_matrice(pil_image):

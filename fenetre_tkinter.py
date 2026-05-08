@@ -100,20 +100,6 @@ def afficher_image():
     image1.place(x= 60, y= 100, anchor="nw")
 
 
-def erreur_ratio():
-    global erreur
-    
-    erreur = tk.Toplevel(root)
-    erreur.title("Erreur")
-    erreur.geometry("380x70")
-    
-    titre = tk.Label(erreur, text="Les deux images n'ont pas la même taille", font=(100))
-    titre.grid()
-
-    bouton = tk.Button(erreur, text="D'accord", command=lambda: erreur.destroy())
-    bouton.grid()
-
-
 '''
 Filtres callback
 '''
@@ -123,6 +109,19 @@ def filtre_rgb(couleur):
         
         imageP, pil_image = traitements.filtre_couleur(pil_image, couleur)
 
+        afficher_image()
+
+
+def gris():
+    global imageP, pil_image
+    if error_verif():
+        imageP, pil_image = traitements.filtre_gris(pil_image)
+        afficher_image()
+
+def bords():
+    global imageP, pil_image
+    if error_verif():
+        imageP, pil_image = traitements.filtre_bords(pil_image)
         afficher_image()
 
 
@@ -247,23 +246,35 @@ def fusion():
     global imageP, pil_image
 
     if error_verif() :
-        imageP2, pil_image2 = ouvrir_2eme()
-        if imageP2 != None :
-            imageP, pil_image = traitements.filtre_fusion(pil_image, pil_image2)
-
-        if pil_image == None :
-            erreur_ratio()
-        else :
+        image_tuple = ouvrir_2eme()
+        if image_tuple != None : # Aucune image choisie ?
+            imageP, pil_image = traitements.filtre_fusion(pil_image, image_tuple[1])
             afficher_image()
 
 
 def ouvrir():
-    global imageP, pil_image, image_importee
+    global imageP, pil_image, image_importee, longeur_coef, largeur_coef
     image = tk.filedialog.askopenfilename() # https://www.pythontutorial.net/tkinter/tkinter-open-file-dialog/
 
     if image != "":
         # Image adapté à Pillow
         pil_image = Image.open(image)
+
+        # Ne pas sortir du cadre, on regarde le plus grand et on crée un coefficient de zoom
+        longeur = pil_image.size[0]
+        largeur = pil_image.size[1]
+
+        if 800/longeur < 1200/largeur : # On cherche le plus hors du cadre
+            coefficient = 800/longeur
+        else :
+            coefficient = 1200/largeur
+
+        # Pour fusion on enregistre
+        longeur_coef = longeur*coefficient
+        largeur_coef = largeur*coefficient
+        pil_image = pil_image.resize((int(longeur_coef), int(largeur_coef)))
+
+
         # .convert Important car certaines images ont le A = alpha, la transparance
         pil_image = pil_image.convert('RGB') # https://stackoverflow.com/questions/51923503
         # Image adapté à Tkinter
@@ -274,10 +285,12 @@ def ouvrir():
 
 
 def ouvrir_2eme():
+    global longeur_coef, largeur_coef # Même taille que l'image précédente
     # 2ème image pour la fusion
     image = tk.filedialog.askopenfilename()
     if image != "":
         pil_image2 = Image.open(image)
+        pil_image2 = pil_image2.resize((int(longeur_coef), int(largeur_coef)))
         pil_image2 = pil_image2.convert('RGBA')
         imageP2 = ImageTk.PhotoImage(pil_image2)
         return ((imageP2, pil_image2))
@@ -287,7 +300,7 @@ def fenetre_principale() :
     global root
     root = tk.Tk()
     root.title("Adobe PhotoCrash 2026")
-    root.geometry("1200x750") 
+    root.geometry("1250x660") 
 
     # Fond
     fond = PhotoImage(file = "Medias/fond.png")
@@ -322,6 +335,7 @@ def fenetre_principale() :
     Couleur.add_command(label="Vert", command=lambda : filtre_rgb(0))
     Couleur.add_command(label="Rouge", command=lambda : filtre_rgb(1))
     Couleur.add_command(label="Bleu", command=lambda : filtre_rgb(2))
+    Couleur.add_command(label="Gris", command=lambda : filtre_rgb(3))
 
     Effets.add_command(label="Filtre Sepia", command=filtre_sepia)
     Effets.add_command(label="Luminosité", command=luminosite)
@@ -329,5 +343,6 @@ def fenetre_principale() :
     Effets.add_command(label="Flou", command=flou)
     Effets.add_command(label="Netteté", command=nettete)
     Effets.add_command(label="Fusion", command=fusion)
+    Effets.add_command(label="Détection de bords", command=bords)
 
     root.mainloop()
