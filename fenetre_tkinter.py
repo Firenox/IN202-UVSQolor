@@ -259,6 +259,69 @@ def flou():
         bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
         bouton_annuler.pack(side=tk.LEFT, padx=10)
 
+
+def flou_gaussien():
+    global pil_image, imageP, original, imageOG
+    
+    if error_verif():
+        imageOG = imageP
+        original = pil_image
+
+        fenetre_reglage = tk.Toplevel()
+        fenetre_reglage.title("Flou Gaussien")
+        fenetre_reglage.geometry("300x150")
+
+        tk.Label(fenetre_reglage, text="Intensité du flou").pack(pady=10)
+
+        curseur = tk.Scale(fenetre_reglage, from_=1, to=15, orient=tk.HORIZONTAL)
+        curseur.set(2)
+        curseur.pack(pady=5)
+
+        def afficher():
+            global pil_image, imageP
+
+            rayon = curseur.get()
+            imageP, pil_image = traitements.filtre_flou_gaussien(original, rayon)
+
+            afficher_image()
+
+        def annuler_effet():
+            global pil_image, imageP
+
+            pil_image = original
+            imageP = imageOG
+
+            afficher_image()
+            fenetre_reglage.destroy()
+
+        # Fonction interne pour valider le flou choisi et application
+        def valider():
+            global pil_image, imageP
+
+            traitements.annuler_liste[0], traitements.annuler_liste[1], traitements.annuler_liste[2] = \
+                traitements.annuler_liste[1], traitements.annuler_liste[2], pil_image
+            
+            rayon = curseur.get()
+            imageP, pil_image = traitements.filtre_flou_gaussien(original, rayon)
+            
+            #Affichage de l'image modifiée
+            afficher_image()
+            
+            fenetre_reglage.destroy()
+            
+        frame_boutons = tk.Frame(fenetre_reglage)
+        frame_boutons.pack(side=tk.BOTTOM, pady=10)
+
+        bouton_afficher = tk.Button(frame_boutons, text="Afficher", command=afficher)
+        bouton_afficher.pack(side=tk.LEFT, padx=10)
+
+        bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annuler_effet)
+        bouton_annuler.pack(side=tk.RIGHT, padx=10)
+
+        bouton_valider = tk.Button(frame_boutons, text="Valider", command=valider)
+        bouton_valider.pack(side=tk.LEFT, padx=10)
+
+
 def nettete():
     global imageP, pil_image
 
@@ -366,6 +429,7 @@ def fenetre_principale() :
     Effets.add_command(label="Luminosité", command=luminosite)
     Effets.add_command(label="Contraste", command=contraste)
     Effets.add_command(label="Flou", command=flou)
+    Effets.add_command(label="Flou Gaussien", command=flou_gaussien)
     Effets.add_command(label="Netteté", command=nettete)
     Effets.add_command(label="Fusion", command=fusion)
     Effets.add_command(label="Détection de bords", command=bords)

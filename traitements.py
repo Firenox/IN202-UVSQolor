@@ -104,6 +104,24 @@ def filtre_flou(pil_image, valeur):
     return passer_en_image(matrice_pixel2.astype(np.uint8))
 
 
+def noyau_gaussien(rayon):
+    # Formule mathématique du noyau de Gauss
+    sigma = max(rayon / 2.0, 1.0)
+    x, y = np.mgrid[-rayon:rayon+1, -rayon:rayon+1]
+    g = np.exp(-(x**2 + y**2) / (2 * sigma**2))
+    return g / g.sum()
+
+def filtre_flou_gaussien(pil_image, rayon):
+    matrice_pixel = passer_en_matrice(pil_image).astype(np.float64)
+    matrice_floue = np.zeros_like(matrice_pixel)
+    noyau = noyau_gaussien(rayon)
+    
+    # Application de la convolution par canal (R, G, B)
+    for i in range(3):
+        matrice_floue[:, :, i] = convolve2d(matrice_pixel[:, :, i], noyau, boundary='symm', mode='same')
+    return passer_en_image(np.clip(matrice_floue, 0, 255).astype(np.uint8))
+
+
 def filtre_nettete(pil_image):
     matrice_floue = passer_en_matrice(filtre_flou(pil_image, 1)[1])
 
