@@ -91,7 +91,7 @@ def correction_contraste(pil_image, facteur, p):
     return passer_en_image(matrice_contraste.astype(np.uint8))
 
 
-def filtre_flou(pil_image):
+def filtre_flou(pil_image, valeur):
     matrice_pixel = passer_en_matrice(pil_image)
     matrice_pixel = matrice_pixel.astype(np.float64)
     matrice_pixel2 = matrice_pixel.copy()
@@ -100,12 +100,12 @@ def filtre_flou(pil_image):
                       [1/9, 1/9, 1/9]])
 
     for i in range(3):
-        matrice_pixel2[:,:,i] = convolve2d(matrice_pixel[:,:,i], noyeau, boundary='symm', mode='same')
+        matrice_pixel2[:,:,i] = matrice_pixel2[:,:,i]*(1-valeur) + convolve2d(matrice_pixel[:,:,i], noyeau, boundary='symm', mode='same')*valeur
     return passer_en_image(matrice_pixel2.astype(np.uint8))
 
 
 def filtre_nettete(pil_image):
-    matrice_floue = passer_en_matrice(filtre_flou(pil_image)[1])
+    matrice_floue = passer_en_matrice(filtre_flou(pil_image, 1)[1])
 
     matrice_pixel = passer_en_matrice(pil_image)
     matrice_pixel = matrice_pixel.astype(np.float64)

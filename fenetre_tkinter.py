@@ -226,13 +226,38 @@ def contraste():
         bouton_appliquer.pack(side=tk.LEFT, padx=10)
 
 
+def flou_appel(valeur):
+    global imageP, pil_image, original
+    imageP, pil_image = traitements.filtre_flou(original, float(valeur))
+    afficher_image()
+
+
 def flou():
-    global imageP, pil_image
+    global original, pil_image, imageOG
 
     if error_verif() :
-        imageP, pil_image = traitements.filtre_flou(pil_image)
-        afficher_image()
 
+        imageOG = imageP
+        original = pil_image
+
+        global dialogue_effet
+        
+        dialogue_effet = tk.Toplevel(root)
+        dialogue_effet.title("Flou")
+        dialogue_effet.geometry("300x150")
+        dialogue_effet.grab_set()
+        slider = tk.Scale(dialogue_effet, from_=0, to=1, orient=tk.HORIZONTAL, length=200, resolution=0.01, digits=2, command=flou_appel)
+        slider.set(0.50)
+        slider.pack(pady=20)
+
+        frame_boutons = tk.Frame(dialogue_effet)
+        frame_boutons.pack(side=tk.BOTTOM, pady=10)
+
+        bouton_appliquer = tk.Button(frame_boutons, text="Appliquer", command=lambda : dialogue_effet.destroy())
+        bouton_appliquer.pack(side=tk.LEFT, padx=10)
+
+        bouton_annuler = tk.Button(frame_boutons, text="Annuler", command=annule_effet)
+        bouton_annuler.pack(side=tk.LEFT, padx=10)
 
 def nettete():
     global imageP, pil_image
